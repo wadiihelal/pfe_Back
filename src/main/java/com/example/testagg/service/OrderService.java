@@ -115,7 +115,7 @@ public class OrderService {
 //    }
 
     public  List callProductionOrdersByDateSpecific(Date date) {
-        List <Order> tmpListOnProd = repo.findOrdersByDateExpactedAndStatus(date,"ONPROD");
+        List <Order> tmpListOnProd = repo.findOrdersByDateExpactedAndStatus(date,"ON PROD");
         List <Order> tmpListAccepted = repo.findOrdersByDateExpactedAndStatus(date,"ACCEPTED");
         List<Order> newList = Stream.of(tmpListAccepted, tmpListOnProd)
                 .flatMap(Collection::stream)
@@ -154,7 +154,7 @@ public class OrderService {
         return  newList;
     }
     public  List callProductionOrdersByDateAfter(Date date) {
-        List <Order> tmpListOnProd = repo.findOrdersByDateExpactedAfterAndStatus(date,"ONPROD");
+        List <Order> tmpListOnProd = repo.findOrdersByDateExpactedAfterAndStatus(date,"ON PROD");
         List <Order> tmpListAccepted = repo.findOrdersByDateExpactedAfterAndStatus(date,"ACCEPTED");
         List<Order> newList = Stream.of(tmpListAccepted, tmpListOnProd)
                 .flatMap(Collection::stream)
@@ -285,8 +285,15 @@ public class OrderService {
         int year=date.getYear()+1900;
         return repo.findClientsPmByYear(year);
     }
-    public List findClientByYearAndMonth(int year,int month){
-        return repo.findClientByYearAndMonth(year, month);
+    public List findClientByYearAndMonth(int year, int month, String type){
+        if(type.equals("expacted")) {
+            System.out.println(type);
+            return repo.findClientByYearAndMonthExpacted(year, month);
+        }        else {
+            System.out.println(type+"hoyyy");
+            return repo.findClientByYearAndMonthReceipt(year, month);
+        }
+
     }
 
     public List <OrdersProduction> get(List <OrdersProduction> modifiable) throws IOException {
@@ -333,14 +340,22 @@ public class OrderService {
 
 
         }
+        System.out.println(allOutput);
+
         return allOutput;
     }
 
     public List getBindingTypeByClientAndByMonth(int year,int month,String clientId ){
+        if(clientId.equals("ALL"))
+            return repo.getBindingTypeByClientAndByMonthALL(year,month);
+        else
         return repo.getBindingTypeByClientAndByMonth(year, month,clientId);
     }
 
-    public List getWorkByMonthAndClient(int year, int month, String clientId, String bindingType) throws IOException {
-        return get(repo.getWorkByMonthAndClient(year,month,clientId,bindingType));
-    }
+    public List getWorkByMonthAndClient(int year, int month, String[] clientId, String[] bindingType,String type) throws IOException {
+        if(type.equals("expacted"))
+            return get(repo.getWorkByMonthAndYearAllClientAndAllBindingTypeExpacted(year,month,clientId,bindingType));
+        else
+            return get(repo.getWorkByMonthAndYearAllClientAndAllBindingTypeReceipt(year,month,clientId,bindingType));
+        }
 }

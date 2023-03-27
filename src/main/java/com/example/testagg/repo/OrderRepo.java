@@ -23,7 +23,7 @@ public interface OrderRepo extends MongoRepository<Order,Integer> {
 
     @Query("{{'dateExpacted' : :#{#dateExpacted}},'status':'ACCEPTED'}")
     List<Order> findAcceptedOrderByDateExpacted(Date dateExpacted);
-    @Query("{{'dateExpacted' : :#{#dateExpacted}},'status':'ONPROD'}")
+    @Query("{{'dateExpacted' : :#{#dateExpacted}},'status':'ON PROD'}")
     List<Order> findOnProdOrderByDateExpacted(Date dateExpacted);
 
     @Aggregation(pipeline = {"{'$match':{'status' : 'ONHOLD'}}",})
@@ -59,29 +59,77 @@ public interface OrderRepo extends MongoRepository<Order,Integer> {
             "{ '$group': { '_id': { 'year': '$year' }, 'clients': { '$push': '$clientId' } } }",
             "{ '$project': { 'clients': 1, '_id': 0 } }"})
     List findClientsPmByYear(int year);
+
+
+
     @Aggregation(pipeline ={
-            "{ '$group': { '_id': { 'clientId': '$clientId', 'year': { '$year': '$dateExpacted' } }, 'year': { '$first': { '$year': '$dateExpacted' } }, 'month': { '$first': { '$month': '$dateExpacted' } }, 'clientId': { '$first': '$clientId' } } }",
+            "{'$match': { 'status': { '$in': [ 'COMPLETE', 'INVOICED', 'DELIVERED', 'ACCEPTED', 'PRODUCED' ] }, } }",
+            "{ '$group': { '_id': { 'clientId': '$clientId', 'year': { '$year': '$dateReceipt' } , 'date':'$dateReceipt'}, 'year': { '$first': { '$year': '$dateReceipt' } }, 'month': { '$first': { '$month': '$dateReceipt' } }, 'clientId': { '$first': '$clientId' } } }",
             "{ '$match': { 'year': ?0, 'month': ?1 } }",
             "{ '$group': { '_id': { 'year': '$year' }, 'clients': { '$push': '$clientId' } } }",
-           "{ '$project': { 'clients': 1, '_id': 0 } }" })
-    List findClientByYearAndMonth(int year,int month);
+           "{ '$project': { 'clients': 1, '_id': 0 } }",
+            "{ '$project': { 'clients': { '$setUnion': [ '$clients' ] } } }"
+    })
+    List findClientByYearAndMonthReceipt(int year,int month);
+    @Aggregation(pipeline ={
+            "{'$match': { 'status': { '$in': [ 'COMPLETE', 'INVOICED', 'DELIVERED', 'ACCEPTED', 'PRODUCED' ] }, } }",
+            "{ '$group': { '_id': { 'clientId': '$clientId', 'year': { '$year': '$dateExpacted' } , 'date':'$dateExpacted'}, 'year': { '$first': { '$year': '$dateExpacted' } }, 'month': { '$first': { '$month': '$dateExpacted' } }, 'clientId': { '$first': '$clientId' } } }",
+            "{ '$match': { 'year': ?0, 'month': ?1 } }",
+            "{ '$group': { '_id': { 'year': '$year' }, 'clients': { '$push': '$clientId' } } }",
+           "{ '$project': { 'clients': 1, '_id': 0 } }",
+            "{ '$project': { 'clients': { '$setUnion': [ '$clients' ] } } }"
+    })
+    List findClientByYearAndMonthExpacted(int year,int month);
 
     @Aggregation(pipeline = {
+            "{'$match': { 'status': { '$in': [ 'COMPLETE', 'INVOICED', 'DELIVERED', 'ACCEPTED', 'PRODUCED' ] }, } }",
             "{ '$match': { 'clientId': ?2 } }",
-            "{ '$group': { '_id': { 'clientId': '$productionParts.clientId', 'bind': '$productionParts.bindingType' }, 'clientId': { '$first': '$productionParts.bindingType' }, 'year': { '$first': { '$year': '$dateExpacted' } }, 'month': { '$first': { '$month': '$dateExpacted' } } } }",
+            "{ '$group': { '_id': { 'clientId': '$productionParts.clientId', 'bind': '$productionParts.bindingType','date': '$dateReceipt' }, 'clientId': { '$first': '$productionParts.bindingType' }, 'year': { '$first': { '$year': '$dateReceipt' } }, 'month': { '$first': { '$month': '$dateReceipt' } } } }",
             "{ '$match': { 'year': ?0, 'month': ?1 } }",
             "{ '$group': { '_id': { 'year': '$year' }, 'clients': { '$push': '$clientId' } } }",
             "{ '$project': { '_id': 0, 'bindtype': { '$reduce': { 'input': '$clients', 'initialValue': [], 'in': { '$concatArrays': [ '$$value', '$$this' ] } } } } }",
             "{ '$project': { 'bindingtype': { '$setUnion': [ '$bindtype' ] } } }"
             })
     List getBindingTypeByClientAndByMonth(int year,int month,String clientId);
+    @Aggregation(pipeline = {
+            "{'$match': { 'status': { '$in': [ 'COMPLETE', 'INVOICED', 'DELIVERED', 'ACCEPTED', 'PRODUCED' ] }, } }",
+            "{ '$group': { '_id': { 'clientId': '$productionParts.clientId', 'bind': '$productionParts.bindingType','date': '$dateReceipt' }, 'clientId': { '$first': '$productionParts.bindingType' }, 'year': { '$first': { '$year': '$dateReceipt' } }, 'month': { '$first': { '$month': '$dateReceipt' } } } }",
+            "{ '$match': { 'year': ?0, 'month': ?1 } }",
+            "{ '$group': { '_id': { 'year': '$year' }, 'clients': { '$push': '$clientId' } } }",
+            "{ '$project': { '_id': 0, 'bindtype': { '$reduce': { 'input': '$clients', 'initialValue': [], 'in': { '$concatArrays': [ '$$value', '$$this' ] } } } } }",
+            "{ '$project': { 'bindingtype': { '$setUnion': [ '$bindtype' ] } } }"
+            })
+    List getBindingTypeByClientAndByMonthALL(int year,int month);
 
     @Aggregation(pipeline ={
+            "{'$match': { 'status': { '$in': [ 'COMPLETE', 'INVOICED', 'DELIVERED', 'ACCEPTED', 'PRODUCED' ] }, } }",
             "{ '$match': { 'productionParts.parentId': { '$in': [ 0, -1 ] }, 'clientId': ?2, 'productionParts.bindingType': ?3} }",
-            "{ '$group': { '_id': { 'clientId': '$clientId', 'year': { '$year': '$dateExpacted' }, 'month': { '$month': '$dateExpacted' }, 'day': { '$dayOfMonth': '$dateExpacted' } }, 'info': { '$push': { 'id': '$_id', 'qtyMax': { '$last': '$productionParts.qtyMax' }, 'qtyDelivered': { '$last': '$productionParts.qtyDelivered' }, 'nbpage': { '$first': '$productionParts.productionPage' }, 'length': { '$first': '$productionParts.length' }, 'hours': { '$first': '$productionParts.hours' } } }, 'date': { '$first': '$dateReceipt' }, 'year': { '$first': { '$year': '$dateExpacted' } }, 'month': { '$first': { '$month': '$dateExpacted' } } } }",
+            "{ '$group': { '_id': { 'clientId': '$clientId', 'year': { '$year': '$dateReceipt' }, 'month': { '$month': '$dateReceipt' }, 'day': { '$dayOfMonth': '$dateReceipt' } }, 'info': { '$push': { 'id': '$_id', 'qtyMax': { '$last': '$productionParts.qtyMax' }, 'qtyDelivered': { '$last': '$productionParts.qtyDelivered' }, 'nbpage': { '$first': '$productionParts.productionPage' }, 'length': { '$first': '$productionParts.length' }, 'hours': { '$first': '$productionParts.hours' } } }, 'date': { '$first': '$dateReceipt' }, 'year': { '$first': { '$year': '$dateReceipt' } }, 'month': { '$first': { '$month': '$dateReceipt' } } } }",
             "{ '$match': { 'year': ?0 ,'month': ?1 } }",
             "{ '$sort': { 'date': 1 } }",
             "{ '$project': { '_id': 0, 'year': 0, 'month': 0 } }",
             })
     List <OrdersProduction> getWorkByMonthAndClient(int year, int month, String clientId, String bindingType);
+    @Aggregation(pipeline ={
+            "{'$match': { 'status': { '$in': [ 'COMPLETE', 'INVOICED', 'DELIVERED', 'ACCEPTED', 'PRODUCED' ] }, } }",
+            "{ '$match': { 'productionParts.parentId': { '$in': [ 0, -1 ] },} }",
+            "{ '$match': { 'productionParts.bindingType': { '$in': ?3},} }",
+            "{ '$match': { 'clientId': { '$in': ?2 },} }",
+            "{ '$group': { '_id': { 'clientId': '$clientId', 'year': { '$year': '$dateReceipt' }, 'month': { '$month': '$dateReceipt' }, 'day': { '$dayOfMonth': '$dateReceipt' } }, 'info': { '$push': { 'id': '$_id', 'qtyMax': { '$last': '$productionParts.qtyMax' }, 'qtyDelivered': { '$last': '$productionParts.qtyDelivered' }, 'nbpage': { '$first': '$productionParts.productionPage' }, 'length': { '$first': '$productionParts.length' }, 'hours': { '$first': '$productionParts.hours' } } }, 'date': { '$first': '$dateReceipt' }, 'year': { '$first': { '$year': '$dateReceipt' } }, 'month': { '$first': { '$month': '$dateReceipt' } } } }",
+            "{ '$match': { 'year': ?0 ,'month': ?1 } }",
+            "{ '$sort': { 'date': 1 } }",
+            "{ '$project': { '_id': 0, 'year': 0, 'month': 0 } }",
+            })
+    List <OrdersProduction> getWorkByMonthAndYearAllClientAndAllBindingTypeReceipt(int year, int month, String[] clientId,String[] bindingType);
+    @Aggregation(pipeline ={
+            "{'$match': { 'status': { '$in': [ 'COMPLETE', 'INVOICED', 'DELIVERED', 'ACCEPTED', 'PRODUCED' ] }, } }",
+            "{ '$match': { 'productionParts.parentId': { '$in': [ 0, -1 ] },} }",
+            "{ '$match': { 'productionParts.bindingType': { '$in': ?3},} }",
+            "{ '$match': { 'clientId': { '$in': ?2 },} }",
+            "{ '$group': { '_id': { 'clientId': '$clientId', 'year': { '$year': '$dateExpacted' }, 'month': { '$month': '$dateExpacted' }, 'day': { '$dayOfMonth': '$dateExpacted' } }, 'info': { '$push': { 'id': '$_id', 'qtyMax': { '$last': '$productionParts.qtyMax' }, 'qtyDelivered': { '$last': '$productionParts.qtyDelivered' }, 'nbpage': { '$first': '$productionParts.productionPage' }, 'length': { '$first': '$productionParts.length' }, 'hours': { '$first': '$productionParts.hours' } } }, 'date': { '$first': '$dateExpacted' }, 'year': { '$first': { '$year': '$dateExpacted' } }, 'month': { '$first': { '$month': '$dateExpacted' } } } }",
+            "{ '$match': { 'year': ?0 ,'month': ?1 } }",
+            "{ '$sort': { 'date': 1 } }",
+            "{ '$project': { '_id': 0, 'year': 0, 'month': 0 } }",
+            })
+    List <OrdersProduction> getWorkByMonthAndYearAllClientAndAllBindingTypeExpacted(int year, int month, String[] clientId,String[] bindingType);
 }

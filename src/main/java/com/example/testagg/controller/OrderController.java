@@ -40,8 +40,8 @@ public class OrderController {
 //        return orderService.get();
 //    }
     @GetMapping("/get-pm-clients-by-month")
-    public List findClientsByYearAndMonth(@RequestParam int year,@RequestParam int month)  {
-        return orderService.findClientByYearAndMonth(year, month);
+    public List findClientsByYearAndMonth(@RequestParam int year,@RequestParam int month,@RequestParam String type)  {
+        return orderService.findClientByYearAndMonth(year, month,type);
     }
 
 
@@ -51,8 +51,8 @@ public class OrderController {
     }
 
     @GetMapping("/get-mensual-work")
-    public  List getWorkByMonthAndClient(@RequestParam int year,@RequestParam int month,@RequestParam String clientId,@RequestParam String bindingType) throws IOException {
-        return orderService.getWorkByMonthAndClient(year,month,clientId,bindingType);
+        public  List getWorkByMonthAndClient(@RequestParam int year,@RequestParam int month,@RequestParam String[] clientId,@RequestParam String[] bindingType,@RequestParam String type) throws IOException {
+        return orderService.getWorkByMonthAndClient(year,month,clientId,bindingType,type);
     }
 //    @GetMapping("/pending")
 //    public List getPendingOrders() {
