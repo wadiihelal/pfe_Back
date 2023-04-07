@@ -1,6 +1,6 @@
 package com.example.testagg.controller;
 
-import com.example.testagg.model.Inventory;
+import com.example.testagg.repo.inventory.Inventory;
 import com.example.testagg.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,5 +21,15 @@ public class InventoryController {
     @GetMapping("/{status}")
     public HashMap DrillController(@PathVariable String status) {
         return inventoryService.findStationsNumberByStatut(status.toUpperCase());
+    }
+
+    @GetMapping("job-waiting-number")
+    List findJobWaitingNumber(){
+        return inventoryService.findJobWaitingNumber();
+    }
+
+    @GetMapping("job-quantity")
+    List findJobQuantity(){
+        return inventoryService.findJobQuantity();
     }
 }

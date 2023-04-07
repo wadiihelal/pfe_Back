@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -18,5 +19,10 @@ public class BinderController {
     @GetMapping
     List findAll() {
         return binderService.findAll();
+    }
+
+    @GetMapping("/quantity-page")
+    HashMap findJobQuantity(){
+        return binderService.findJobQuantity();
     }
 }

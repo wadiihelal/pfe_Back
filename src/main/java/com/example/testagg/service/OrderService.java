@@ -1,10 +1,10 @@
 package com.example.testagg.service;
 
-import com.example.testagg.model.Order;
-import com.example.testagg.model.OrdersProduction;
-import com.example.testagg.model.Pm;
-import com.example.testagg.repo.OrderProd;
-import com.example.testagg.repo.OrderRepo;
+import com.example.testagg.repo.orderRepo.Order;
+import com.example.testagg.repo.orderRepo.OrdersProduction;
+import com.example.testagg.repo.orderRepo.Pm;
+import com.example.testagg.repo.orderRepo.OrderProd;
+import com.example.testagg.repo.orderRepo.OrderRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
@@ -115,7 +115,7 @@ public class OrderService {
 //    }
 
     public  List callProductionOrdersByDateSpecific(Date date) {
-        List <Order> tmpListOnProd = repo.findOrdersByDateExpactedAndStatus(date,"ON PROD");
+        List <Order> tmpListOnProd = repo.findOrdersByDateExpactedAndStatus(date,"ONPROD");
         List <Order> tmpListAccepted = repo.findOrdersByDateExpactedAndStatus(date,"ACCEPTED");
         List<Order> newList = Stream.of(tmpListAccepted, tmpListOnProd)
                 .flatMap(Collection::stream)
@@ -296,8 +296,8 @@ public class OrderService {
 
     }
 
-    public List <OrdersProduction> get(List <OrdersProduction> modifiable) throws IOException {
-        ArrayList allOutput=new ArrayList<HashMap>();
+    public ArrayList<HashMap> get(List <OrdersProduction> modifiable) throws IOException {
+        ArrayList <HashMap> allOutput=new ArrayList<HashMap>();
         Double quantityMax=0D;
         Double quantityDelivered=0D;
         Double pages=0D;
@@ -337,8 +337,6 @@ public class OrderService {
                 allOutput.add((output));
             previousDay=res.getDate().toInstant();
 
-
-
         }
         System.out.println(allOutput);
 
@@ -358,4 +356,19 @@ public class OrderService {
         else
             return get(repo.getWorkByMonthAndYearAllClientAndAllBindingTypeReceipt(year,month,clientId,bindingType));
         }
+
+        public List<HashMap> getPrintedPageByClientByYear(int year){
+        return repo.getPrintedPageByClientByYear(year);
+        }
+        public List<HashMap> getQuantityRequestedByClientByYear(int year){
+        return repo.getQuantityRequestedByClientByYear(year);
+        }
+        public List<HashMap> getLengthByPaper(int year){
+        return repo.getLengthByPaper(year);
+        }
+        public List<HashMap> getLengthByBindingType(int year){
+        return repo.getLengthByBindingType(year);
+        }
+        public List<HashMap> getBindingTypeByQtyRequestedAndYear(int year){return repo.getBindingTypeByQtyRequestedAndYear(year);}
+        public List<HashMap> getBindingTypeByPagesAndYear(int year){return repo.getBindingTypeByPagesAndYear(year);}
 }

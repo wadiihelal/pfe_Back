@@ -1,6 +1,6 @@
 package com.example.testagg.service;
 
-import com.example.testagg.repo.MachineRepo;
+import com.example.testagg.repo.machineRepo.MachineRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +12,7 @@ public class MachineService {
     MachineRepo machineRepo;
 
     public List findAll() {
+
         return machineRepo.findAll();
     }
 }

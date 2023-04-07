@@ -1,12 +1,13 @@
 package com.example.testagg.service;
 
-import com.example.testagg.model.Inventory;
-import com.example.testagg.repo.InventoryRepo;
+import com.example.testagg.repo.inventory.Inventory;
+import com.example.testagg.repo.inventory.InventoryRepo;
 import com.example.testagg.service.stations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,6 +35,49 @@ public class InventoryService {
         map.put("Press",applicationContext.getBean(PressService.class).findPressByStatus(status).size());
         map.put("ShrinWrap",applicationContext.getBean(ShrinkWrapService.class).findShrinkWrapByStatus(status).size());
         return map;
+    }
+
+
+    public List findJobWaitingNumber() {
+        List output=new ArrayList();
+        output.add(applicationContext.getBean(BinderService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(BookAssemblyService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(CaseBinderService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(CaseMakerService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(CoilPunchService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(CoverService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(CutterService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(DieCutterService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(DrillService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(EndSheetService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(HorizonService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(HunkelerService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(LaminationService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(PressService.class).findJobWaitingNumber());
+        output.add(applicationContext.getBean(ShrinkWrapService.class).findJobWaitingNumber());
+
+        return output;
+    }
+
+    public List findJobQuantity(){
+        List output=new ArrayList();
+        output.add(applicationContext.getBean(BinderService.class).findJobQuantity());
+        output.add(applicationContext.getBean(BookAssemblyService.class).findJobQuantity());
+        output.add(applicationContext.getBean(CaseBinderService.class).findJobQuantity());
+        output.add(applicationContext.getBean(CaseMakerService.class).findJobQuantity());
+        output.add(applicationContext.getBean(CoilPunchService.class).findJobQuantity());
+        output.add(applicationContext.getBean(CoverService.class).findJobQuantity());
+        output.add(applicationContext.getBean(CutterService.class).findJobQuantity());
+        output.add(applicationContext.getBean(DieCutterService.class).findJobQuantity());
+        output.add(applicationContext.getBean(DrillService.class).findJobQuantity());
+        output.add(applicationContext.getBean(EndSheetService.class).findJobQuantity());
+        output.add(applicationContext.getBean(HorizonService.class).findJobQuantity());
+        output.add(applicationContext.getBean(HunkelerService.class).findJobQuantity());
+        output.add(applicationContext.getBean(LaminationService.class).findJobQuantity());
+        output.add(applicationContext.getBean(PressService.class).findJobQuantity());
+        output.add(applicationContext.getBean(ShrinkWrapService.class).findJobQuantity());
+
+        return output;
     }
 
 }

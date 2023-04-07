@@ -54,6 +54,31 @@ public class OrderController {
         public  List getWorkByMonthAndClient(@RequestParam int year,@RequestParam int month,@RequestParam String[] clientId,@RequestParam String[] bindingType,@RequestParam String type) throws IOException {
         return orderService.getWorkByMonthAndClient(year,month,clientId,bindingType,type);
     }
+
+    @GetMapping("/client-year-pages")
+    public List getPrintedPageByClientByYear(@RequestParam int year){
+        return orderService.getPrintedPageByClientByYear(year);
+    }
+    @GetMapping("/client-year-qty-req")
+    public List getQuantityRequestedByClientByYear(@RequestParam int year){
+        return orderService.getQuantityRequestedByClientByYear(year);
+    }
+    @GetMapping("/paper-length-year")
+    public List getLengthByPaper(@RequestParam int year){
+        return orderService.getLengthByPaper(year);
+    }
+    @GetMapping("/bindtype-length-year")
+    public List getLengthByBindingType(@RequestParam int year){
+        return orderService.getLengthByBindingType(year);
+    }
+    @GetMapping("/bindtype-qty-year")
+    public List getBindingTypeByQtyRequestedAndYear(@RequestParam int year){
+        return orderService.getBindingTypeByQtyRequestedAndYear(year);
+    }
+    @GetMapping("/bindtype-page-year")
+    public List getBindingTypeByPagesAndYear(@RequestParam int year){
+        return orderService.getBindingTypeByPagesAndYear(year);
+    }
 //    @GetMapping("/pending")
 //    public List getPendingOrders() {
 //        return orderService.getPendingOrders();
